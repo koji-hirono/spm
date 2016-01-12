@@ -652,3 +652,7 @@ A∩B の部分しか情報が残らない。
   http://www.forest.impress.co.jp/article/2007/07/31/kshogi.html
   STUDIO-K PONTA
   http://www.studiok-i.net/
+
+* クラウド将棋局面図ジェネレーター
+  http://sfenreader.appspot.com/
+  https://github.com/fantakeshi/sfenreader_gae
