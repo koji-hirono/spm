@@ -147,6 +147,7 @@ board55_init(Board *board)
 
 	return 0;
 }
+
 int
 board_sfen_init(Board *board, const char *s)
 {
