@@ -1,16 +1,24 @@
 #include <stddef.h>
+#include <string.h>
 
 #include "game.h"
 
 int
-game_init(Game *game, const char *sfen)
+game_init(Game *game, const char *s)
 {
-	if (board_init(&game->board) != 0)
-		return -1;
+	if (s == NULL) {
+		if (board_init(&game->board) != 0)
+			return -1;
+		game->start = NULL;
+	} else {
+		if (board_sfen_init(&game->board, s) != 0)
+			return -1;
+		if ((game->start = strdup(s)) == NULL)
+			return -1;
+	}
 
 	movelog_init(&game->movelog);
-	game->start = NULL;
-	game->turn = -1;
+	game->turn = 0;
 	game->flags = 0;
 
 	return 0;
