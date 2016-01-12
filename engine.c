@@ -21,11 +21,11 @@
 
 static int id_parse(Usimsg *, Engine *);
 static int option_parse(Usimsg *, Engine *);
-static int info_parse(Usimsg *);
+static int info_parse(Usimsg *, Movecap *);
 static int bestmove_parse(Usimsg *, Move *);
 static int checkmate_parse(Usimsg *, Movelog *);
 static int infomate_parse(Usimsg *, Movelog *);
-static void position_to_stream(Stream *, const Game *);
+static int position_to_stream(Stream *, const Game *);
 static int tx(Engine *, const char *);
 static int rx(Engine *, Buf *);
 static void infoout(Engine *, const char *, const char *);
@@ -194,24 +194,22 @@ engine_setoption(Engine *engine, const char *name, const char *val)
 }
 
 int
-engine_move(Engine *engine, Move *move, const Game *game)
+engine_move(Engine *engine, Move *move, Movecap *cap, const Game *game)
 {
 	Usimsg msg;
 	Buf buf;
 	int end;
 	int r;
 
-	if (game->turn >= game->movelog.n) {
-		error("turn over: %d >= %d.", game->turn, game->movelog.n);
+	if (position_to_stream(&engine->w, game) != 0)
 		return -1;
-	}
-
-	position_to_stream(&engine->w, game);
 
 	buf_init(&buf);
 
-	if (tx(engine, "go btime 10000000 wtime 10000000 byoyomi 10000000") != 0)
+	if (tx(engine, "go btime 0 wtime 0 byoyomi 3000") != 0)
 		goto err;
+
+	movecap_init(cap);
 
 	end = 0;
 	r = -1;
@@ -225,7 +223,7 @@ engine_move(Engine *engine, Move *move, const Game *game)
 			end = 1;
 			break;
 		case USIMSG_INFO:
-			info_parse(&msg);
+			info_parse(&msg, cap);
 			break;
 		default:
 			break;
@@ -248,12 +246,8 @@ engine_mate(Engine *engine, Movelog *mate, const Game *game)
 	int end;
 	int r;
 
-	if (game->turn >= game->movelog.n) {
-		error("turn over: %d >= %d.", game->turn, game->movelog.n);
+	if (position_to_stream(&engine->w, game) != 0)
 		return -1;
-	}
-
-	position_to_stream(&engine->w, game);
 
 	buf_init(&buf);
 
@@ -518,7 +512,7 @@ err:
 }
 
 static int
-info_parse(Usimsg *msg)
+info_parse(Usimsg *msg, Movecap *cap)
 {
 	Usiobj *obj;
 	Token *t;
@@ -528,19 +522,25 @@ info_parse(Usimsg *msg)
 		switch (obj->key) {
 		case USIOBJ_DEPTH:
 			num = *(int *)(obj + 1);
-			printf("depth : %d\n", num);
+			cap->depth = num;
 			break;
 		case USIOBJ_SELDEPTH:
 			num = *(int *)(obj + 1);
-			printf("seldepth : %d\n", num);
+			cap->seldepth = num;
 			break;
 		case USIOBJ_SCORE_CP:
 			num = *(int *)(obj + 1);
-			printf("cp : %d\n", num);
+			cap->score = num;
+			break;
+		case USIOBJ_SCORE_MATE:
+			num = *(int *)(obj + 1);
+			cap->score = 999999;
+			if (num & (1 << 31))
+				cap->score *= -1;
 			break;
 		case USIOBJ_PV:
 			t = (Token *)(obj + 1);
-			printf("pv : %.*s\n", t->len, t->s);
+			printf("pv: %.*s\n", t->len, t->s);
 			break;
 		default:
 			break;
@@ -628,11 +628,16 @@ infomate_parse(Usimsg *msg, Movelog *mate)
 	return MOVE;
 }
 
-static void
+static int
 position_to_stream(Stream *out, const Game *game)
 {
 	Move *m;
 	int i;
+
+	if (game->turn > game->movelog.n) {
+		error("turn over: %d > %d.", game->turn, game->movelog.n);
+		return -1;
+	}
 
 	stream_puts(out, "position ");
 	if (game->start == NULL)
@@ -641,13 +646,16 @@ position_to_stream(Stream *out, const Game *game)
 		stream_puts(out, "sfen ");
 		stream_puts(out, game->start);
 	}
+
 	stream_puts(out, " moves");
-	for (i = 0; i < game->turn + 1; i++) {
+	for (i = 0; i < game->turn; i++) {
 		m = game->movelog.list + i;
 		stream_putc(out, ' ');
-		move_show(out, m);
+		move_to_stream(out, m);
 	}
 	stream_putc(out, '\n');
+
+	return 0;
 }
 
 static int
