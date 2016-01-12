@@ -1,3 +1,5 @@
+http://www.geocities.jp/shogidokoro/usi.html
+
 USIプロトコルとは
 
 USI(Universal Shogi Interface)プロトコルとは、将棋GUIソフトと思考エンジ
