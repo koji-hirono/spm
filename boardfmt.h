@@ -12,6 +12,7 @@ extern const char *side_name(int);
 
 extern int piece_to_stream(Stream *, int);
 extern int move_to_stream(Stream *, const Move *);
+
 extern void board_show(Stream *, const Board *);
 extern void board_show_reverse(Stream *, const Board *);
 
