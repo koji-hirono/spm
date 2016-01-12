@@ -111,6 +111,7 @@ struct Movecap {
 /* Movecap::flags */
 #define MOVECAP_VALID    (1 << 0)
 
+
 extern int board_init(Board *);
 extern int board55_init(Board *);
 extern int board_sfen_init(Board *, const char *);
