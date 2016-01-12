@@ -15,3 +15,9 @@ Bonanza   - u2b.exe
             http://www.geocities.jp/bonanza_shogi/
 Spear     - SpearShogidokoro.exe
             http://www2.teu.ac.jp/gamelab/SHOGI/SPEAR/spear.html
+Sunfish   - sunfish
+            https://github.com/sunfish-shogi/sunfish3
+Inaniwa   - Inaniwa.exe
+            https://github.com/inaniwa3/inaniwa-shogi
+Apery     - apery
+            https://github.com/HiraokaTakuya/apery
