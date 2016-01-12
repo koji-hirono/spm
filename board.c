@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <ctype.h>
 
 #include "trace.h"
 #include "board.h"
@@ -147,8 +148,201 @@ board55_init(Board *board)
 	return 0;
 }
 
+int
+board_sfen_init(Board *board, const char *s)
+{
+	const char *p;
+	const char *brkp;
+	int side;
+	int pflag;
+	int piece;
+	int row;
+	int col;
+	int n;
+	int i;
+
+	if (board_alloc(board, 9, 9))
+		return -1;
+
+	/* board */
+	row = 0;
+	col = 0;
+	for (p = s; *p != '\0'; p++) {
+		if (*p == ' ')
+			break;
+		if (*p == '/') {
+			col = 0;
+			row++;
+			continue;
+		}
+		pflag = 0;
+		if (*p == '+') {
+			pflag = 1;
+			p++;
+		}
+		if (isdigit(*p & 0xff)) {
+			/* space count */
+			n = *p - '0';
+			piece = NONE;
+			for (i = 0; i < n; i++) {
+				board->cell[row][col] = piece;
+				col++;
+			}
+		} else if (isupper(*p & 0xff)) {
+			switch (*p) {
+			case 'P':
+				piece = B(PAWN);
+				break;
+			case 'L':
+				piece = B(LANCE);
+				break;
+			case 'N':
+				piece = B(KNIGHT);
+				break;
+			case 'B':
+				piece = B(BISHOP);
+				break;
+			case 'R':
+				piece = B(ROOK);
+				break;
+			case 'S':
+				piece = B(SILVER);
+				break;
+			case 'G':
+				piece = B(GOLD);
+				break;
+			case 'K':
+				piece = B(KING);
+				break;
+			default:
+				piece = NONE;
+				break;
+			}
+			if (pflag)
+				piece = promote(piece);
+			board->cell[row][col] = piece;
+			col++;
+		} else if (islower(*p & 0xff)) {
+			switch (*p) {
+			case 'p':
+				piece = W(PAWN);
+				break;
+			case 'l':
+				piece = W(LANCE);
+				break;
+			case 'n':
+				piece = W(KNIGHT);
+				break;
+			case 'b':
+				piece = W(BISHOP);
+				break;
+			case 'r':
+				piece = W(ROOK);
+				break;
+			case 's':
+				piece = W(SILVER);
+				break;
+			case 'g':
+				piece = W(GOLD);
+				break;
+			case 'k':
+				piece = W(KING);
+				break;
+			default:
+				piece = NONE;
+				break;
+			}
+			if (pflag)
+				piece = promote(piece);
+			board->cell[row][col] = piece;
+			col++;
+		} else {
+			continue;
+		}
+	}
+
+	while (isspace(*p & 0xff))
+		p++;
+
+	/* side */
+	if (*p == 'w')
+		board->side = WHITE;
+	else if (*p == 'b')
+		board->side = BLACK;
+	p++;
+
+	while (isspace(*p & 0xff))
+		p++;
+
+	/* stock */
+	for (; *p != '\0'; p++) {
+		if (isspace(*p & 0xff))
+			break;
+		/* stock count */
+		n = strtol(p, (char **)&brkp, 10);
+		if (n == 0)
+			n = 1;
+		p = brkp;
+		if (isupper(*p & 0xff))
+			side = BLACK;
+		else if (islower(*p & 0xff))
+			side = WHITE;
+		else
+			continue;
+		switch (*p) {
+		case 'p':
+		case 'P':
+			piece = PAWN;
+			break;
+		case 'l':
+		case 'L':
+			piece = LANCE;
+			break;
+		case 'n':
+		case 'N':
+			piece = KNIGHT;
+			break;
+		case 'b':
+		case 'B':
+			piece = BISHOP;
+			break;
+		case 'r':
+		case 'R':
+			piece = ROOK;
+			break;
+		case 's':
+		case 'S':
+			piece = SILVER;
+			break;
+		case 'g':
+		case 'G':
+			piece = GOLD;
+			break;
+		case 'k':
+		case 'K':
+			piece = KING;
+			break;
+		default:
+			piece = NONE;
+			break;
+		}
+		board->num[side][piece] = n;
+	}
+
+	return 0;
+}
+
 int *
 board_cell(const Board *board, int row, int col)
 {
 	return &board->cell[row - 1][board->ncol - col];
+}
+
+void
+movecap_init(Movecap *cap)
+{
+	cap->flags = 0;
+	cap->score = 0;
+	cap->depth = 0;
+	cap->seldepth = 0;
 }
