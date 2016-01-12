@@ -1,0 +1,28 @@
+http://kmtchess.sourceforge.net/
+
+  +-----------------+
+8 | r . b q k b . r |
+7 | p p p . . p p p |
+6 | . . n . . . . . |
+5 | . . . n p . N . |
+4 | . . B . . . . . |
+3 | . . . . . . . . |
+2 | P P P P . P P P |
+1 | R N B Q K . . R |
+  +-----------------+
+    a b c d e f g h
+
+KMT: g5f7
+Jug  Nodos  Valor  Tiempo  Variante principal
+  1     45    231     0cs  e8f7
+  2    445    198     1cs  e8f7 b1c3
+  3   2426    198     3cs  e8f7 d1f3 f7e6 b1c3
+  4  10527    198     8cs  e8f7 d1f3 f7e6 b1c3 c6b4
+  5  29997    169    14cs  e8f7 d1f3 f7e6 b1c3 c6b4 e1g1
+  6   241K    190    78cs  e8f7 b1c3 c8e6 d1f3 d5f6 c4e6 f7e6 d2d3
+  7   928K    172   294cs  e8f7 d1f3 f7e6 b1c3 c6b4 e1g1 c7c6 f3g4
+Nps: 325000
+Tiempo: 499 cs
+TT hits: 3%
+KMT: 6 ..., e8f7        <172>.
+KMT:
