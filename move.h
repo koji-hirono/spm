@@ -13,5 +13,6 @@ extern int move_normalize(Move *, Board *, int);
 extern int move_check(Move *, const Board *);
 extern void move_next(const Move *, Board *);
 extern void move_prev(const Move *, Board *);
+extern int move_equal(const Move *, const Move *);
 
 #endif /* !MOVE_H_ */
