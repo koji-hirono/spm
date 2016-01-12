@@ -1,0 +1,35 @@
+GNU Chess 6.1.0
+Copyright (C) 2013 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/lic
+This is free software: you are free to change and redistribute
+There is NO WARRANTY, to the extent permitted by law.
+White (1) : Nf3
+TimeLimit[0] = 0
+TimeLimit[1] = 0
+1. Nf3
+
+black  KQkq
+r n b q k b n r
+p p p p p p p p
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . N . .
+P P P P P P P P
+R N B Q K B . R
+
+Thinking...
+
+white  KQkq
+r n b q k b . r
+p p p p p p p p
+. . . . . n . .
+. . . . . . . .
+. . . . . . . .
+. . . . . N . .
+P P P P P P P P
+R N B Q K B . R
+
+
+My move is : Nf6
+White (2) :
