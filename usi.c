@@ -334,7 +334,10 @@ info_parse(Usimsg *msg, const char *s)
 		case USITYPE_NUM:
 			if ((p = token_get(&token, p)) == NULL)
 				return -1;
-			num = strtol(token.s, NULL, 10);
+			if (*token.s == '-' && token.len == 1)
+				num = 1 << 31;
+			else
+				num = strtol(token.s, NULL, 10);
 			if (usimsg_pushnum(msg, key, num) != 0)
 				return -1;
 			break;
