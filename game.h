@@ -17,7 +17,7 @@ struct Game {
 /* Game::flags */
 #define REVERSE_BOARD (1 << 0)
 
-#define cur_side(g) (((g)->turn + (g)->board.side + 1) & 1)
+#define cur_side(g) (((g)->turn + (g)->board.side) & 1)
 
 extern int game_init(Game *, const char *);
 

@@ -6,7 +6,12 @@ Shogi replay and postmortem client for Unix
 Requirements
 ------------
 * USI engines
-* Kifu
+* Kifu (USI format)
+
+Feature
+-------
+* Simple command line interface
+* Analize kifu by USI engine
 
 License
 -------

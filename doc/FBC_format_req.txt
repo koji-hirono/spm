@@ -1,0 +1,101 @@
+=======================================
+Requirements for new Shogi game format
+=======================================
+Thursday, March 27, 2008
+Fat Bold Cyclop
+
+There seems to be great need for a single computer standard for
+exchanging Shogi games data.
+
+There has been ongoing debate on discussion board (shogi-l) for years
+now.
+
+Although the discussion tends to be difficult (like the never ending
+dillema "which came first, the chicken or the egg") but the point is
+quite simple. After scanning the post you notice that there are just a
+few simple requirements to be fulfilled.
+
+I try to collect them here. The standard should let for the following
+features:
+
+  1. Storing multiple games in one file.
+
+  2. Providing game information (type of the game, players, date, event,
+     outcome, ...) in the way that any shogi software could correctly
+     interpret it.
+
+  3. Allowing to store variants.
+
+  4. Allowing to store comments in different languages.
+
+  5. Allowing to embed multimedia contents (board markups, pictures,
+     sounds, movies) in the comments.
+
+Except for the last (embedding multimedia) I consider them to be the
+core features. They have to be included into the specification. In my
+opinion no matter if the standard is totally new or if it's based on
+some existing format (Simple Game Format, Portable Shogi Notation, KIF)
+it needs to address the problems mentioned above.
+
+By the way, they seem to be easy to implement:
+
+Ad 1) If the single game has concise and well defined description, the
+      games are easily distinguishable/separable. Even if it is not the
+      case, some game separator could be introduced.
+
+Ad 2) The information could be provided in key/value pairs (let's not 
+      bother about their form now), for example sente:Sato Yasumitsu or
+      [sente "Sato Yasumitsu"].
+
+We would have to agree on the standard set of tags (sente, gote, event,
+etc.). The less, the better. The standard, to be flexible and extensible,
+would state that other tags are allowed but are not given any special
+meaning. This way if one program needs to add some information that
+matters only to it, it uses his own tag without any side effects on
+other programs.
+
+Ad 3) There are many possibilities here. SGF and PSN uses tree-like text
+      data structure for example. I could think of few more solutions
+      but the actual implementation doesn't really matter. Ideally, the
+      structure should be easy for the machines to decode but still easy
+      enough for humans to read it.
+
+Ad 4) For comments we should opt for standard Unicode encoding like
+      UTF-8.
+
+Ad 5) I have some reservations about number 5. It will greatly improve
+      viewing the games with software but it also will make the format
+      less readable by humans.
+
+The most important thing is to make the multimedia comments/markups
+optional. I imagine not every Shogi game viewer will want the feature
+(furthermore I believe some target devices, like simple cell-phones,
+won't be able to use it).
+
+I would split the problem of multimedia comments into two categories:
+
+  1. markups that don't require embedding additional data (markups for
+     actions that are understand by viewer: drawing arrows, coloring
+     board fields, showing hyper link, etc.)
+
+  2. markups that require embedding additional data (pictures, sounds,
+     movies, etc.)
+
+The first category is easy. The more I think about the second category
+the less I am convinced it belongs to the standard ;-)
+
+And what do you think?
+
+---
+H.G.Muller October 15, 2010 at 3:22 AM
+
+I know Shogi people like to do everything as different as possible, but
+I like to stick to existing standards as long as they can do the job.
+None of the requirements you point out is really any different from what
+you need for any other Chess variant, and Portable Game Notation was
+designed to meet them.
+
+So in the WinBoard / XBoard graphical interface for Chess / Shogi /
+Xiangqi (plus a host of others) I stick to using PGN as a single
+standard format, rather than using zillions of different formats of
+limited scope.

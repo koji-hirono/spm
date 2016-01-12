@@ -7,6 +7,31 @@
 
 
 int
+move_equal(const Move *m1, const Move *m2)
+{
+	if (m1->flags != m2->flags)
+		return 0;
+
+	if (m1->dst.row != m2->dst.row)
+		return 0;
+	if (m1->dst.col != m2->dst.col)
+		return 0;
+
+	if (onboard(m1)) {
+		if (m1->src.row != m2->src.row)
+			return 0;
+		if (m1->src.col != m2->src.col)
+			return 0;
+	} else {
+		if (m1->piece != m2->flags)
+			return 0;
+	}
+
+
+	return 1;
+}
+
+int
 move_normalize(Move *move, Board *board, int side)
 {
 	int *p;
@@ -229,7 +254,8 @@ move_check(Move *move, const Board *board)
 
 		/* pieceが一致しない */
 		if (move->piece != *src) {
-			error("diff piece type: %#x != %#x.", move->piece, *src);
+			error("diff piece type: %#x != %#x.",
+			      move->piece, *src);
 			return -1;
 		}
 	} else {
@@ -312,7 +338,7 @@ move_next(const Move *move, Board *board)
 	type = type_get(*dst);
 	type = demote(type);
 	if (type != NONE)
-		board->num[side_mate(side)][type]++;
+		board->num[side_opponent(side)][type]++;
 
 	*dst = move->piece;
 	if (dopromote(move))
@@ -331,7 +357,7 @@ move_prev(const Move *move, Board *board)
 	type = type_get(move->get_piece);
 	type = demote(type);
 	if (type != NONE)
-		board->num[side_mate(side)][type]--;
+		board->num[side_opponent(side)][type]--;
 
 	dst = board_cell(board, move->dst.row, move->dst.col);
 	*dst = move->get_piece;

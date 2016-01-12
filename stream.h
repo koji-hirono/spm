@@ -27,6 +27,7 @@ struct Stream {
 	};
 };
 
+/* Stream::flags */
 #define STREAM_END (1 << 0)
 
 extern void stream_ioinit(Stream *, int);

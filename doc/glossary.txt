@@ -1,0 +1,24 @@
+先手・下手   black
+後手・上手   white
+駒落ち       handicap
+駒台         piece stand
+             staging area
+持ち駒       piece in hand
+駒           piece
+盤           board
+             gameboard
+段           rank
+筋           file
+升           square      (e.g. chess)
+             rectangular (e.g. shogi)
+             space
+局面         position
+駒の位置     position
+駒を取る     capture
+持ち駒を置く drop
+
+[独自]
+陣営         side
+在庫         stock
+
+http://en.wikipedia.org/wiki/Board_game
