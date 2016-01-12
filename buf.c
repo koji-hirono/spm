@@ -1,7 +1,7 @@
 #include <stdio.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdarg.h>
 
 #include "buf.h"
 
@@ -38,17 +38,6 @@ buf_expand(Buf *buf, size_t add)
 }
 
 int
-buf_pushoct(Buf *buf, const void *oct, size_t len)
-{
-	unsigned char *bp;
-
-	if ((bp = buf_expand(buf, len)) == NULL)
-		return -1;
-	memcpy(bp, oct, len);
-	return 0;
-}
-
-int
 buf_pushc(Buf *buf, int c)
 {
 	unsigned char *bp;
@@ -60,40 +49,49 @@ buf_pushc(Buf *buf, int c)
 }
 
 int
-buf_pushfmt(Buf *buf, const char *fmt, ...)
+buf_pushoct(Buf *buf, const void *oct, size_t len)
+{
+	unsigned char *bp;
+
+	if ((bp = buf_expand(buf, len)) == NULL)
+		return -1;
+	memcpy(bp, oct, len);
+	return 0;
+}
+
+int
+buf_pushfmt(Buf *b, const char *fmt, ...)
 {
 	va_list ap;
 	int r;
 
 	va_start(ap, fmt);
-	r = buf_pushvfmt(buf, fmt, ap);
+	r = buf_pushvfmt(b, fmt, ap);
 	va_end(ap);
 
 	return r;
 }
 
 int
-buf_pushvfmt(Buf *buf, const char *fmt, va_list ap)
+buf_pushvfmt(Buf *b, const char *fmt, va_list ap)
 {
+	ssize_t size;
 	size_t off;
-	char *bp;
-	int len;
 	int r;
 
-	off = buf->n;
-	len = 128;
+	size = 128;
+	off = b->n;
 	for (;;) {
-		if ((bp = buf_expand(buf, len)) == NULL)
+		if (buf_expand(b, size) == NULL)
 			return -1;
-		r = vsnprintf(buf->b + off, len, fmt, ap);
-		if (r < 0)
+		if ((r = vsnprintf(b->b + off, size, fmt, ap)) < 0)
 			return -1;
-		if (r < len) {
-			buf->n = off + r;
+		if (r < size) {
+			b->n = off + r;
 			break;
 		}
-		buf->n = off;
-		len = r + 1;
+		b->n = off;
+		size = r + 1;
 	}
 
 	return 0;
