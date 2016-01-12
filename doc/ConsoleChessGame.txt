@@ -1,0 +1,31 @@
+http://www.systemcall.eu/rengolin/stuff/chess/
+
+* black側のpieceは色反転している
+
+The Console Chess Game
+
+WHITE TURN
+
+        A       B       C       D       E       F       G       H
+        ---------------------------------------------------------
+1       T       7       I       K       Q       I       7       T
+
+2       p       p       p       p       p       p       p       p
+
+3       -       -       -       -       -       -       -       -
+
+4       -       -       -       -       -       -       -       -
+
+5       -       -       -       -       -       -       -       -
+
+6       -       -       -       -       -       -       -       -
+
+7       p       p       p       p       p       p       p       p
+
+8       T       7       I       K       Q       I       7       T
+
+        ---------------------------------------------------------
+White captured:
+Black captured:
+
+Type move (ex. B2B4), (T)alk or (Q)uit:

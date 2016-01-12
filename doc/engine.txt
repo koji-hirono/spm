@@ -1,0 +1,17 @@
+engine
+
+Lesserkai - Lesserkai
+            http://www.geocities.jp/shogidokoro/download.html#LesserkaiSrc
+TJshogi   - TJshogi_USI.exe
+            TJshogi5x5_USI.exe
+            http://tonyjh.com/chess/tjshogi/
+Laramie   - LaramieV3.exe
+            http://www4.ocn.ne.jp/~grf/shogi-laramie.html
+Blunder   - 
+            http://hp.vector.co.jp/authors/VA039571/blunder/
+GPSShogi  - gpsusi
+Bonanza   - u2b.exe
+            http://www.geocities.jp/shogi_depot/
+            http://www.geocities.jp/bonanza_shogi/
+Spear     - SpearShogidokoro.exe
+            http://www2.teu.ac.jp/gamelab/SHOGI/SPEAR/spear.html

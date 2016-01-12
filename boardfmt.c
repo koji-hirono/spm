@@ -42,15 +42,15 @@ piece_parse(int *piece, Stream *s)
 	int c;
 
 	c = stream_getc(s);
-        for (i = 0; list[i] != '\0'; i++) {
-                if (list[i] == c) {
-                        *piece = i + 1;
-                        return 0;
-                }
-        }
+	for (i = 0; list[i] != '\0'; i++) {
+		if (list[i] == c) {
+			*piece = i + 1;
+			return 0;
+		}
+	}
 
 	error("illegal piece: `%c'.", c);
-        return -1;
+	return -1;
 }
 
 int
@@ -106,7 +106,6 @@ move_parse(Move *move, Stream *s)
 	return 0;
 }
 
-
 const char *
 side_name(int side)
 {
@@ -121,10 +120,11 @@ side_name(int side)
 }
 
 int
-piece_name(Stream *s, int piece)
+piece_to_stream(Stream *s, int piece)
 {
 	const char *list = ".PLNBRSGK";
 	int type;
+	int side;
 	int len;
 
 	type = type_get(piece);
@@ -135,28 +135,83 @@ piece_name(Stream *s, int piece)
 		return 1;
 	}
 
-	len = 1;
-	if (ispromoted(piece)) {
-		stream_putc(s, '+');
+	len = 0;
+	side = side_get(piece);
+	switch (side) {
+	case BLACK:
+		if (ispromoted(piece)) {
+			stream_putc(s, '+');
+			len++;
+		}
+		stream_putc(s, list[type]);
 		len++;
+		break;
+	case WHITE:
+		if (ispromoted(piece)) {
+			stream_putc(s, '+');
+			len++;
+		}
+		stream_putc(s, tolower(list[type] & 0xff));
+		len++;
+		break;
+	default:
+		warn("Unknown side: %#x", side);
+		stream_putc(s, '-');
+		return 1;
 	}
 
-	if (side_get(piece) == WHITE)
-		stream_putc(s, tolower(list[type] & 0xff));
-	else
-		stream_putc(s, list[type]);
+	return len;
+}
+
+int
+move_to_stream(Stream *s, const Move *move)
+{
+	int type;
+	int len;
+
+	if (onboard(move)) {
+		len = stream_fmtputs(s, "%d%c%d%c%s",
+			move->src.col, move->src.row + 'a' - 1,
+			move->dst.col, move->dst.row + 'a' - 1,
+			dopromote(move) ? "+" : "");
+	} else {
+		type = type_get(move->piece);
+		len = piece_to_stream(s, type);
+		len += stream_fmtputs(s, "*%d%c",
+		       move->dst.col, move->dst.row + 'a' - 1);
+	}
 
 	return len;
+}
+
+void
+stock_show(Stream *s, const Board *board)
+{
+	int piece;
+	int side;
+	int n;
+
+	for (side = 0; side < NSIDE; side++) {
+		stream_puts(s, side_name(side));
+		stream_putc(s, ':');
+		for (piece = 0; piece < NPIECE; piece++) {
+			n = board->num[side][piece];
+			if (n > 0) {
+				stream_putc(s, ' ');
+				piece_to_stream(s, piece);
+				stream_putc(s, 'x');
+				stream_fmtputs(s, "%d", n);
+			}
+		}
+		stream_putc(s, '\n');
+	}
 }
 
 void
 board_show(Stream *s, const Board *board)
 {
 	int row, col;
-	int side;
-	int piece;
 	int len;
-	int n;
 
 	for (col = 0; col < board->ncol; col++) {
 		stream_fmtputs(s, "%d", board->ncol - col);
@@ -168,38 +223,22 @@ board_show(Stream *s, const Board *board)
 
 	for (row = 0; row < board->nrow; row++) {
 		for (col = 0; col < board->ncol; col++) {
-			len = piece_name(s, board->cell[row][col]);
-			if (len < 2)
-				stream_putc(s, ' ');
+			len = piece_to_stream(s, board->cell[row][col]);
+			stream_fmtputs(s, "%*s", 2 - len, "");
 		}
 		stream_putc(s, ' ');
 		stream_putc(s, row + 'a');
 		stream_putc(s, '\n');
 	}
 
-	for (side = 0; side < NSIDE; side++) {
-		stream_puts(s, side_name(side));
-		stream_putc(s, ':');
-		for (piece = 0; piece < NPIECE; piece++) {
-			n = board->num[side][piece];
-			if (n > 0) {
-				stream_putc(s, ' ');
-				piece_name(s, piece);
-				stream_fmtputs(s, "x%d", n);
-			}
-		}
-		stream_putc(s, '\n');
-	}
+	stock_show(s, board);
 }
 
 void
 board_show_reverse(Stream *s, const Board *board)
 {
 	int row, col;
-	int side;
-	int piece;
 	int len;
-	int n;
 
 	for (col = board->ncol - 1; col >= 0; col--) {
 		stream_fmtputs(s, "%d", board->ncol - col);
@@ -211,47 +250,13 @@ board_show_reverse(Stream *s, const Board *board)
 
 	for (row = board->nrow - 1; row >= 0; row--) {
 		for (col = board->ncol - 1; col >= 0; col--) {
-			len = piece_name(s, board->cell[row][col]);
-			if (len < 2)
-				stream_putc(s, ' ');
+			len = piece_to_stream(s, board->cell[row][col]);
+			stream_fmtputs(s, "%*s", 2 - len, "");
 		}
 		stream_putc(s, ' ');
 		stream_putc(s, row + 'a');
 		stream_putc(s, '\n');
 	}
 
-	for (side = 0; side < NSIDE; side++) {
-		stream_puts(s, side_name(side));
-		stream_putc(s, ':');
-		for (piece = 0; piece < NPIECE; piece++) {
-			n = board->num[side][piece];
-			if (n > 0) {
-				stream_putc(s, ' ');
-				piece_name(s, piece);
-				stream_fmtputs(s, "x%d", n);
-			}
-		}
-		stream_putc(s, '\n');
-	}
-}
-
-void
-move_show(Stream *s, const Move *move)
-{
-	int type;
-
-	if (onboard(move)) {
-		stream_fmtputs(s, "%d", move->src.col);
-		stream_putc(s, move->src.row + 'a' - 1);
-		stream_fmtputs(s, "%d", move->dst.col);
-		stream_putc(s, move->dst.row + 'a' - 1);
-		if (dopromote(move)) {
-			stream_putc(s, '+');
-		}
-	} else {
-		type = type_get(move->piece);
-		piece_name(s, type);
-		stream_fmtputs(s, "*%d%c",
-		       move->dst.col, move->dst.row + 'a' - 1);
-	}
+	stock_show(s, board);
 }

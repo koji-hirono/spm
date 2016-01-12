@@ -21,10 +21,12 @@ DEPS=$(SRCS:.c=.dep)
 CPPFLAGS=-Wall -W -Werror
 CPPFLAGS+=-Wno-unused-parameter
 
+.PHONY: all clean
+
 all: $(PROG)
 
 clean:
-	rm -rf $(DEPS) $(OBJS) $(PROG) *~
+	-rm -rf $(DEPS) $(OBJS) $(PROG) *~
 
 $(PROG): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDADD)
@@ -34,8 +36,8 @@ $(OBJS): %.o : %.c
 
 $(DEPS): %.dep : %.c
 	@echo "===> Update" $@
-	@$(CC) $(CPPFLAGS) -MM -o $@ $<
+	@$(CC) $(CPPFLAGS) -MM $< -o $@
 
-ifneq ($(MAKECMDGOALS), clean)
+ifneq ($(MAKECMDGOALS),clean)
 -include $(DEPS)
 endif

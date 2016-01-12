@@ -8,18 +8,21 @@
 #include "boardfmt.h"
 #include "movelog.h"
 
-
 void
 movelog_init(Movelog *log)
 {
 	log->list = NULL;
 	log->n = 0;
+	log->parent = NULL;
+	log->from = 0;
+	log->cap = NULL;
 }
 
 void
 movelog_destroy(Movelog *log)
 {
 	free(log->list);
+	free(log->cap);
 }
 
 int
@@ -35,17 +38,34 @@ movelog_add(Movelog *log, Move *add)
 		return -1;
 	}
 
-	move = log->list + log->n++;
+	size = (log->n + 1) * sizeof(Movecap);
+
+	if ((log->cap = realloc(log->cap, size)) == NULL) {
+		error("realloc");
+		free(log->list);
+		return -1;
+	}
+
+	movecap_init(log->cap + log->n);
+	move = log->list + log->n;
 	*move = *add;
+	log->n++;
 
 	return 0;
+}
+
+void
+movelog_branch(Movelog *dst, Movelog *src, int from)
+{
+	movelog_init(dst);
+	dst->parent = src;
+	dst->from = from;
 }
 
 int
 movelog_save(Movelog *log, const char *fname)
 {
 	Stream s;
-	Move *move;
 	FILE *fp;
 	int i;
 
@@ -57,32 +77,8 @@ movelog_save(Movelog *log, const char *fname)
 	stream_fileinit(&s, fp);
 
 	for (i = 0; i < log->n; i++) {
-		move = log->list + i;
-		move_show(&s, move);
+		move_to_stream(&s, log->list + i);
 		stream_putc(&s, '\n');
-	}
-
-	fclose(fp);
-
-	return 0;
-}
-
-int
-movelog_load(Movelog *log, const char *fname)
-{
-	Stream s;
-	FILE *fp;
-
-	if ((fp = fopen(fname, "r")) == NULL) {
-		error("fopen(%s)", fname);
-		return -1;
-	}
-
-	stream_fileinit(&s, fp);
-
-	if (movelog_load_stream(log, &s) != 0) {
-		fclose(fp);
-		return -1;
 	}
 
 	fclose(fp);
@@ -111,6 +107,29 @@ movelog_load_stream(Movelog *log, Stream *s)
 
 		stream_ungetc(c, s);
 	}
+
+	return 0;
+}
+
+int
+movelog_load(Movelog *log, const char *fname)
+{
+	Stream s;
+	FILE *fp;
+
+	if ((fp = fopen(fname, "r")) == NULL) {
+		error("fopen(%s,%s)", fname, "r");
+		return -1;
+	}
+
+	stream_fileinit(&s, fp);
+
+	if (movelog_load_stream(log, &s) != 0) {
+		fclose(fp);
+		return -1;
+	}
+
+	fclose(fp);
 
 	return 0;
 }
