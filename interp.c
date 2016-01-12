@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <stddef.h>
 #include <string.h>
 
 #include "trace.h"
@@ -7,6 +7,7 @@
 #include "board.h"
 #include "boardfmt.h"
 #include "engine.h"
+#include "game.h"
 #include "cmds.h"
 #include "interp.h"
 
@@ -22,6 +23,8 @@ interp_init(Interp *interp)
 void
 interp_loop(Interp *interp)
 {
+	Game *game = interp->game;
+	Stream *out = interp->out;
 	Buf line;
 	Cmd *cmd;
 	int end;
@@ -33,9 +36,9 @@ interp_loop(Interp *interp)
 
 	buf_init(&line);
 	while (!end) {
-		stream_puts(interp->out, side_name(cur_side(interp->game)));
-		stream_fmtputs(interp->out, "(%d/%d)? ",
-			interp->game->turn + 1, interp->game->movelog.n);
+		stream_puts(out, side_name(cur_side(game)));
+		stream_fmtputs(out, "(%d/%d)? ",
+			game->turn, game->movelog.n);
 		buf_clear(&line);
 		if (stream_gets(interp->in, &line) != 0)
 			break;
