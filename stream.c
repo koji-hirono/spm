@@ -240,6 +240,7 @@ stream_vfmtputs(Stream *s, const char *fmt, va_list ap)
 			if (buf_pushvfmt(&b, fmt, ap) != 0)
 				return -1;
 			write(s->fd, b.b, b.n);
+			r = b.n;
 			buf_free(&b);
 		}
 		break;
