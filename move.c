@@ -163,10 +163,9 @@ isdouble_pawn(Move *move, const Board *board)
 }
 
 int
-iskingdead(int side, const Board *board)
+getkingpos(Pos *pos, int side, const Board *board)
 {
 	int *piece;
-	Move move;
 	int row;
 	int col;
 
@@ -175,10 +174,29 @@ iskingdead(int side, const Board *board)
 			piece = board_cell(board, row, col);
 			if (side_get(*piece) == side &&
 			    type_get(*piece) == KING) {
-				move.dst.col = col;
-				move.dst.row = row;
+				if (pos != NULL) {
+					pos->col = col;
+					pos->row = row;
+				}
+				return 1;
 			}
 		}
+	}
+
+	return 0;
+}
+
+int
+iskingdead(int side, const Board *board)
+{
+	int *piece;
+	Move move;
+	int row;
+	int col;
+
+	if (!getkingpos(&move.dst, side, board)) {
+		error("not found %d king.", side);
+		return 0;
 	}
 
 	for (row = 1; row <= board->nrow; row++) {
