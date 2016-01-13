@@ -53,7 +53,7 @@ static Cmd cmdtbl[] = {
 	{'h', "help", cmd_help},
 	{'?', "help", cmd_help},
 	{'q', "quit", cmd_quit},
-	{0}
+	{0, NULL, NULL}
 };
 
 Cmd *
