@@ -461,12 +461,12 @@ option_parse(Usimsg *msg, Engine *engine)
 			switch (type) {
 			case USIOPT_CHECK:
 				num = *(int *)(obj + 1);
-				opt->def = (void *)num;
+				opt->def = (void *)(intptr_t)num;
 				opt->cur = opt->def;
 				break;
 			case USIOPT_SPIN:
 				num = *(int *)(obj + 1);
-				opt->def = (void *)num;
+				opt->def = (void *)(intptr_t)num;
 				opt->cur = opt->def;
 				break;
 			case USIOPT_BUTTON:
@@ -540,7 +540,7 @@ info_parse(Usimsg *msg, Movecap *cap)
 			break;
 		case USIOBJ_PV:
 			t = (Token *)(obj + 1);
-			printf("pv: %.*s\n", t->len, t->s);
+			printf("pv: %.*s\n", (int)t->len, t->s);
 			break;
 		default:
 			break;
