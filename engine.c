@@ -150,23 +150,31 @@ engine_start(Engine *engine)
 {
 	Usimsg msg;
 	Buf buf;
+	int end;
 
 	buf_init(&buf);
 
 	if (tx(engine, "isready") != 0)
 		goto err;
 
-	if (rx(engine, &buf) != 0)
-		goto err;
-
-	usimsg_parse(&msg, buf.b);
-
-	if (msg.type != USIMSG_READYOK) {
-		error("isready? -> `%s'.", buf.b);
+	end = 0;
+	while (!end) {
+		if (rx(engine, &buf) != 0)
+			goto err;
+		usimsg_parse(&msg, buf.b);
+		switch (msg.type) {
+		case USIMSG_READYOK:
+			end = 1;
+			break;
+		case USIMSG_INFO:
+			break;
+		default:
+			error("isready? -> `%s'.", buf.b);
+			usimsg_destroy(&msg);
+			goto err;
+		}
 		usimsg_destroy(&msg);
-		goto err;
 	}
-	usimsg_destroy(&msg);
 
 	if (tx(engine, "usinewgame") != 0)
 		goto err;
