@@ -66,8 +66,8 @@ main(int argc, char **argv)
 	if (engine_init(&engine) != 0)
 		return EXIT_FAILURE;
 
-	stream_fileinit(&in, stdin);
-	stream_fileinit(&out, stdout);
+	stream_ioinit(&in, fileno(stdin));
+	stream_ioinit(&out, fileno(stdout));
 
 	interp_init(&interp);
 	interp.in = &in;
