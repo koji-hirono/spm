@@ -15,5 +15,6 @@ extern int move_to_stream(Stream *, const Move *);
 
 extern void board_show(Stream *, const Board *);
 extern void board_show_reverse(Stream *, const Board *);
+extern void board_show_sfen(Stream *, const Board *, int, int);
 
 #endif /* !BOARDFMT_H_ */

@@ -260,3 +260,70 @@ board_show_reverse(Stream *s, const Board *board)
 
 	stock_show(s, board);
 }
+
+void
+board_show_sfen(Stream *s, const Board *board, int side, int turn)
+{
+	int row, col;
+	int piece;
+	int type;
+	int stock;
+	int n;
+
+	for (row = 0; row < board->nrow; row++) {
+		n = 0;
+		for (col = 0; col < board->ncol; col++) {
+			piece = board->cell[row][col];
+			type = type_get(piece);
+			type = demote(type);
+			if (type == NONE) {
+				n++;
+			} else {
+				if (n > 0)
+					stream_fmtputs(s, "%d", n);
+				n = 0;
+				piece_to_stream(s, piece);
+			}
+		}
+		if (n > 0)
+			stream_fmtputs(s, "%d", n);
+		if (row < board->nrow - 1)
+			stream_putc(s, '/');
+	}
+
+	stream_putc(s, ' ');
+
+	switch (side) {
+	case BLACK:
+		stream_putc(s, 'b');
+		break;
+	case WHITE:
+		stream_putc(s, 'w');
+		break;
+	default:
+		stream_putc(s, '-');
+		break;
+	}
+
+	stream_putc(s, ' ');
+
+	stock = 0;
+	for (side = 0; side < NSIDE; side++) {
+		for (piece = 0; piece < NPIECE; piece++) {
+			n = board->num[side][piece];
+			if (n > 0) {
+				if (n > 1)
+					stream_fmtputs(s, "%d", n);
+				piece_to_stream(s, side_set(piece, side));
+				stock += n;
+			}
+		}
+	}
+
+	if (stock == 0)
+		stream_putc(s, '-');
+
+	stream_fmtputs(s, " %d", turn + 1);
+
+	stream_putc(s, '\n');
+}

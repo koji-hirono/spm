@@ -21,6 +21,7 @@ static int cmd_prev(Interp *, const char *);
 static int cmd_jump(Interp *, const char *);
 static int cmd_show_movelog(Interp *, const char *);
 static int cmd_show(Interp *, const char *);
+static int cmd_show_sfen(Interp *, const char *);
 static int cmd_flip_board(Interp *, const char *);
 static int cmd_move(Interp *, const char *);
 static int cmd_bestmove(Interp *, const char *);
@@ -45,6 +46,7 @@ static Cmd cmdtbl[] = {
 	{'w', "write movelog", cmd_write},
 	{'o', "set engine option", cmd_set_engine_opt},
 	{'s', "show board", cmd_show},
+	{'f', "show SFEN", cmd_show_sfen},
 	{'l', "show movelog", cmd_show_movelog},
 	{'E', "show engine", cmd_show_engine},
 	{'S', "start engine", cmd_start_engine},
@@ -299,6 +301,17 @@ cmd_show(Interp *interp, const char *line)
 	else
 		board_show(out, &game->board);
 	stream_putc(out, '\n');
+
+	return 0;
+}
+
+static int
+cmd_show_sfen(Interp *interp, const char *line)
+{
+	Game *game = interp->game;
+	Stream *out = interp->out;
+
+	board_show_sfen(out, &game->board, cur_side(game), game->turn);
 
 	return 0;
 }
