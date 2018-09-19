@@ -119,7 +119,10 @@ engine_init(Engine *engine)
 	while (!end) {
 		if (rx(engine, &buf) != 0)
 			goto err;
-		usimsg_parse(&msg, buf.b);
+		if (buf.b[0] == '\0')
+			continue;
+		if (usimsg_parse(&msg, buf.b) != 0)
+			goto err;
 		switch (msg.type) {
 		case USIMSG_OK:
 			end = 1;
@@ -161,7 +164,10 @@ engine_start(Engine *engine)
 	while (!end) {
 		if (rx(engine, &buf) != 0)
 			goto err;
-		usimsg_parse(&msg, buf.b);
+		if (buf.b[0] == '\0')
+			continue;
+		if (usimsg_parse(&msg, buf.b) != 0)
+			goto err;
 		switch (msg.type) {
 		case USIMSG_READYOK:
 			end = 1;
@@ -224,7 +230,10 @@ engine_move(Engine *engine, Move *move, Movecap *cap, const Game *game)
 	while (!end) {
 		if (rx(engine, &buf) != 0)
 			goto err;
-		usimsg_parse(&msg, buf.b);
+		if (buf.b[0] == '\0')
+			continue;
+		if (usimsg_parse(&msg, buf.b) != 0)
+			goto err;
 		switch (msg.type) {
 		case USIMSG_BESTMOVE:
 			r = bestmove_parse(&msg, move);
@@ -267,7 +276,10 @@ engine_mate(Engine *engine, Movelog *mate, const Game *game)
 	while (!end) {
 		if (rx(engine, &buf) != 0)
 			goto err;
-		usimsg_parse(&msg, buf.b);
+		if (buf.b[0] == '\0')
+			continue;
+		if (usimsg_parse(&msg, buf.b) != 0)
+			goto err;
 		switch (msg.type) {
 		case USIMSG_CHECKMATE:
 			r = checkmate_parse(&msg, mate);
