@@ -398,23 +398,28 @@ cmd_show_engine(Interp *interp, const char *line)
 
 	for (opt = engine->opt; opt != NULL; opt = opt->next) {
 		stream_fmtputs(out, "  %s:\n", opt->name);
-		stream_fmtputs(out, "    type: %s\n", usiopttypestr(opt->type));
+		stream_fmtputs(out, "    type: %s\n",
+				usiopttypestr(opt->type));
 		switch (opt->type) {
 		case USIOPT_CHECK:
 			stream_fmtputs(out, "    cur : %s\n",
-					(int)opt->cur ? "true" : "false");
+					opt->cur ? "true" : "false");
 			stream_fmtputs(out, "    def : %s\n",
-					(int)opt->def ? "true" : "false");
+					opt->def ? "true" : "false");
 			break;
 		case USIOPT_SPIN:
-			stream_fmtputs(out, "    cur : %d\n", opt->cur);
-			stream_fmtputs(out, "    def : %d\n", opt->def);
+			stream_fmtputs(out, "    cur : %d\n",
+					(int)(intptr_t)opt->cur);
+			stream_fmtputs(out, "    def : %d\n",
+					(int)(intptr_t)opt->def);
 			stream_fmtputs(out, "    min : %d\n", opt->min);
 			stream_fmtputs(out, "    max : %d\n", opt->max);
 			break;
 		case USIOPT_COMBO:
-			stream_fmtputs(out, "    cur : `%s'\n", opt->cur);
-			stream_fmtputs(out, "    def : `%s'\n", opt->def);
+			stream_fmtputs(out, "    cur : `%s'\n",
+					(const char *)opt->cur);
+			stream_fmtputs(out, "    def : `%s'\n",
+				       	(const char *)opt->def);
 			stream_puts(out, "    var :\n");
 			for (var = opt->var; var != NULL; var = var->next) {
 				stream_puts(out, "      `");
@@ -468,7 +473,7 @@ cmd_set_engine_opt(Interp *interp, const char *line)
 
 	if (opt == NULL) {
 		stream_fmtputs(interp->out, "not found option: %.*s\n", 
-			len, line);
+			(int)len, line);
 		return 0;
 	}
 
