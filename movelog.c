@@ -38,7 +38,7 @@ movelog_add(Movelog *log, Move *add)
 		return -1;
 	}
 
-	size = (log->n + 1) * sizeof(Movecap);
+	size = (log->n + 2) * sizeof(Movecap);
 
 	if ((log->cap = realloc(log->cap, size)) == NULL) {
 		error("realloc");

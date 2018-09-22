@@ -340,7 +340,7 @@ cmd_show_movelog(Interp *interp, const char *line)
 		if (cap->flags & MOVECAP_VALID) {
 			if (len < 5)
 				stream_putc(out, ' ');
-			stream_fmtputs(out, " (%6d) ", cap->score);
+			stream_fmtputs(out, " (%7d) ", cap->score);
 			len = move_to_stream(out, &cap->expect);
 			if (len < 5)
 				stream_putc(out, ' ');
@@ -509,17 +509,19 @@ cmd_analyze(Interp *interp, const char *line)
 	}
 
 	prev = NULL;
-	for (i = 0; i < n; i++) {
+	for (i = 0; i <= n; i++) {
 		cap = log->cap + i;
-		move = log->list + i;
 		ret = engine_move(interp->engine, &cap->expect, cap, game);
 		if (ret != MOVE)
 			continue;
 		if (cur_side(game) == WHITE)
 			cap->score *= -1;
-		if (move_normalize(move, &game->board, cur_side(game)) != 0) {
-			error("Illegal move.");
-			continue;
+		if (i < n) {
+			move = log->list + i;
+			if (move_normalize(move, &game->board, cur_side(game)) != 0) {
+				error("Illegal move.");
+				continue;
+			}
 		}
 		if (move_normalize(&cap->expect, &game->board,
 				   cur_side(game)) != 0) {
@@ -527,21 +529,15 @@ cmd_analyze(Interp *interp, const char *line)
 			continue;
 		}
 
-		/*
-		 * 指し手が一致していれば、そのままのscore 
-		 * 指し手が一致していなければ、その次のscore
-		 */
 		if (prev)
 			prev->score = cap->score;
-		if (move_equal(move, &cap->expect)) {
-			prev = NULL;
-		} else {
-			prev = cap;
-		}
+		prev = cap;
 		cap->flags |= MOVECAP_VALID;
 
-		move_next(log->list + i, &game->board);
-		game->turn++;
+		if (i < n) {
+			move_next(log->list + i, &game->board);
+			game->turn++;
+		}
 	}
 
 	return 0;
