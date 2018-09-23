@@ -11,6 +11,7 @@
 #include "trace.h"
 #include "buf.h"
 #include "stream.h"
+#include "cfg.h"
 #include "board.h"
 #include "boardfmt.h"
 #include "move.h"
@@ -32,7 +33,7 @@ static void infoout(Engine *, const char *, const char *);
 
 
 int
-engine_open(Engine *engine, const char *path, int level)
+engine_open(Engine *engine, const char *path, Cfg *cfg, int level)
 {
 	pid_t pid;
 	int u2e[2];
@@ -78,6 +79,7 @@ engine_open(Engine *engine, const char *path, int level)
 	engine->name = NULL;
 	engine->author = NULL;
 	engine->opt = NULL;
+	engine->cfg = cfg;
 	engine->status = ENGINE_SPAWNED;
 
 	return 0;
@@ -210,7 +212,12 @@ engine_setoption(Engine *engine, const char *name, const char *val)
 int
 engine_move(Engine *engine, Move *move, Movecap *cap, const Game *game)
 {
+	const char *btime = "0";
+	const char *wtime = "0";
+	const char *byoyomi = "3000";
 	Usimsg msg;
+	Cfg *sect;
+	Cfg *entry;
 	Buf buf;
 	int end;
 	int r;
@@ -218,9 +225,22 @@ engine_move(Engine *engine, Move *move, Movecap *cap, const Game *game)
 	if (position_to_stream(&engine->w, game) != 0)
 		return -1;
 
+
+	if ((sect = cfg_get(engine->cfg, "engine")) != NULL) {
+		if ((entry = cfg_get(sect, "btime")) != NULL)
+			btime = entry->value;
+		if ((entry = cfg_get(sect, "wtime")) != NULL)
+			wtime = entry->value;
+		if ((entry = cfg_get(sect, "byoyomi")) != NULL)
+			byoyomi = entry->value;
+	}
+
 	buf_init(&buf);
 
-	if (tx(engine, "go btime 0 wtime 0 byoyomi 3000") != 0)
+	buf_pushfmt(&buf, "go btime %s wtime %s byoyomi %s",
+			btime, wtime, byoyomi);
+
+	if (tx(engine, buf.b) != 0)
 		goto err;
 
 	movecap_init(cap);
@@ -258,6 +278,9 @@ err:
 int
 engine_mate(Engine *engine, Movelog *mate, const Game *game)
 {
+	const char *matetimeout = "60000";
+	Cfg *sect;
+	Cfg *entry;
 	Usimsg msg;
 	Buf buf;
 	int end;
@@ -266,9 +289,15 @@ engine_mate(Engine *engine, Movelog *mate, const Game *game)
 	if (position_to_stream(&engine->w, game) != 0)
 		return -1;
 
+	if ((sect = cfg_get(engine->cfg, "engine")) != NULL)
+		if ((entry = cfg_get(sect, "matetimeout")) != NULL)
+			matetimeout = entry->value;
+
 	buf_init(&buf);
 
-	if (tx(engine, "go mate 10000000") != 0)
+	buf_pushfmt(&buf, "go mate %s", matetimeout);
+
+	if (tx(engine, buf.b) != 0)
 		goto err;
 
 	end = 0;

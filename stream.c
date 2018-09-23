@@ -124,6 +124,8 @@ stream_gets(Stream *s, Buf *buf)
 {
 	int c;
 
+	buf_clear(buf);
+
 	if (s->flags & STREAM_END)
 		return -1;
 

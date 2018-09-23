@@ -49,6 +49,18 @@ buf_pushc(Buf *buf, int c)
 }
 
 int
+buf_pushstr(Buf *buf, const char *str)
+{
+	return buf_pushoct(buf, str, strlen(str));
+}
+
+int
+buf_pushstrz(Buf *buf, const char *str)
+{
+	return buf_pushoct(buf, str, strlen(str) + 1);
+}
+
+int
 buf_pushoct(Buf *buf, const void *oct, size_t len)
 {
 	unsigned char *bp;

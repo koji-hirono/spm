@@ -14,6 +14,9 @@ SRCS=\
 	stream.c \
 	buf.c \
 	trace.c \
+	cfg.c \
+	ini.c \
+	str.c \
 	stringex.c
 
 OBJS=$(SRCS:.c=.o)

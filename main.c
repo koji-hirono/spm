@@ -5,6 +5,7 @@
 
 #include "trace.h"
 #include "stream.h"
+#include "cfg.h"
 #include "board.h"
 #include "movelog.h"
 #include "game.h"
@@ -23,6 +24,7 @@ main(int argc, char **argv)
 	Interp interp;
 	Game game;
 	Engine engine;
+	Cfg cfg = {NULL, NULL, "", NULL};
 	Stream in;
 	Stream out;
 	int debug;
@@ -53,6 +55,9 @@ main(int argc, char **argv)
 
 	fname = (argc == 1) ? argv[0] : NULL;
 
+	if (cfg_load(&cfg) != 0)
+		return EXIT_FAILURE;
+
 	if (game_init(&game, sfen) != 0)
 		return EXIT_FAILURE;
 
@@ -60,7 +65,7 @@ main(int argc, char **argv)
 		if (movelog_load(&game.movelog, fname) != 0)
 			return EXIT_FAILURE;
 
-	if (engine_open(&engine, engine_path, debug) != 0)
+	if (engine_open(&engine, engine_path, &cfg, debug) != 0)
 		return EXIT_FAILURE;
 
 	if (engine_init(&engine) != 0)
@@ -72,6 +77,7 @@ main(int argc, char **argv)
 	interp_init(&interp);
 	interp.in = &in;
 	interp.out = &out;
+	interp.cfg = &cfg;
 	interp.game = &game;
 	interp.engine = &engine;
 

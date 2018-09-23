@@ -28,6 +28,7 @@ static int cmd_bestmove(Interp *, const char *);
 static int cmd_checkmate(Interp *, const char *);
 static int cmd_read(Interp *, const char *);
 static int cmd_write(Interp *, const char *);
+static int cmd_show_config(Interp *, const char *);
 static int cmd_show_engine(Interp *, const char *);
 static int cmd_start_engine(Interp *, const char *);
 static int cmd_set_engine_opt(Interp *, const char *);
@@ -49,6 +50,7 @@ static Cmd cmdtbl[] = {
 	{'f', "show SFEN", cmd_show_sfen},
 	{'l', "show movelog", cmd_show_movelog},
 	{'E', "show engine", cmd_show_engine},
+	{'g', "show config", cmd_show_config},
 	{'S', "start engine", cmd_start_engine},
 	{'F', "flip baord", cmd_flip_board},
 	{'a', "analyze", cmd_analyze},
@@ -358,6 +360,25 @@ cmd_show_movelog(Interp *interp, const char *line)
 		}
 		stream_putc(out, '\n');
 		prev = cap;
+	}
+
+	return 0;
+}
+
+static int
+cmd_show_config(Interp *interp, const char *line)
+{
+	Stream *out = interp->out;
+	Cfg *cfg = interp->cfg;
+	Cfg *sect;
+	Cfg *entry;
+
+	for (sect = cfg->child; sect != NULL; sect = sect->next) {
+		stream_fmtputs(out, "%s:\n", sect->name);
+		for (entry = sect->child; entry != NULL; entry = entry->next) {
+			stream_fmtputs(out, "  %s: %s\n",
+					entry->name, entry->value);
+		}
 	}
 
 	return 0;

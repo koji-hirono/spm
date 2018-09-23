@@ -16,6 +16,7 @@ interp_init(Interp *interp)
 {
 	interp->in = NULL;
 	interp->out = NULL;
+	interp->cfg = NULL;
 	interp->game = NULL;
 	interp->engine = NULL;
 }

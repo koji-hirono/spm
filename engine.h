@@ -4,6 +4,7 @@
 #include <unistd.h>
 
 #include "stream.h"
+#include "cfg.h"
 #include "board.h"
 #include "movelog.h"
 #include "game.h"
@@ -45,9 +46,10 @@ struct Engine {
 	Stream w;
 	Stream r;
 	Engineopt *opt;
+	Cfg *cfg;
 };
 
-extern int engine_open(Engine *, const char *, int);
+extern int engine_open(Engine *, const char *, Cfg *, int);
 extern void engine_close(Engine *);
 extern int engine_init(Engine *);
 extern int engine_start(Engine *);
