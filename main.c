@@ -70,6 +70,8 @@ main(int argc, char **argv)
 
 	if (engine_init(&engine) != 0)
 		return EXIT_FAILURE;
+	if (engine_autoconfig(&engine) != 0)
+		return EXIT_FAILURE;
 
 	stream_ioinit(&in, fileno(stdin));
 	stream_ioinit(&out, fileno(stdout));

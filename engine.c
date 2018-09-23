@@ -210,6 +210,54 @@ engine_setoption(Engine *engine, const char *name, const char *val)
 }
 
 int
+engine_autoconfig(Engine *engine)
+{
+	Engineopt *opt;
+	Cfg *sect;
+	Cfg *entry;
+
+	for (sect = engine->cfg->child; sect != NULL; sect = sect->next)
+		if (strstr(engine->name, sect->name) != NULL)
+			break;
+	if (sect == NULL)
+		return 0;
+
+	for (entry = sect->child; entry != NULL; entry = entry->next) {
+		for (opt = engine->opt; opt != NULL; opt = opt->next)
+			if (strcmp(opt->name, entry->name) == 0)
+				break;
+		if (opt == NULL)
+			continue;
+		switch (opt->type) {
+		case USIOPT_CHECK:
+			if (strcmp(entry->value, "true") == 0)
+				opt->cur = (void *)(intptr_t)1;
+			else if (strcmp(entry->value, "false") == 0)
+				opt->cur = (void *)(intptr_t)0;
+			break;
+		case USIOPT_SPIN:
+			opt->cur = (void *)(intptr_t)strtol(entry->value,
+				       	NULL, 0);
+			break;
+		case USIOPT_BUTTON:
+			break;
+		case USIOPT_COMBO:
+		case USIOPT_STRING:
+		case USIOPT_FILENAME:
+			free(opt->cur);
+			opt->cur = strdup(entry->value);
+			break;
+		default:
+			break;
+		}
+		engine_setoption(engine, entry->name, entry->value);
+	}
+
+	return 0;
+}
+
+
+int
 engine_move(Engine *engine, Move *move, Movecap *cap, const Game *game)
 {
 	const char *btime = "0";

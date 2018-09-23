@@ -54,6 +54,7 @@ extern void engine_close(Engine *);
 extern int engine_init(Engine *);
 extern int engine_start(Engine *);
 extern int engine_setoption(Engine *, const char *, const char *);
+extern int engine_autoconfig(Engine *);
 extern int engine_move(Engine *, Move *, Movecap *, const Game *);
 extern int engine_mate(Engine *, Movelog *, const Game *);
 extern const char *engine_status_str(int);
