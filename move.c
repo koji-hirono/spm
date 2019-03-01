@@ -23,7 +23,7 @@ move_equal(const Move *m1, const Move *m2)
 		if (m1->src.col != m2->src.col)
 			return 0;
 	} else {
-		if (m1->piece != m2->flags)
+		if (m1->piece != m2->piece)
 			return 0;
 	}
 
